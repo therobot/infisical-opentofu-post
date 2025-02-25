@@ -23,3 +23,8 @@ output "public-hostname" {
 output "application-url" {
    value = "${google_compute_instance.web.network_interface.0.access_config.0.nat_ip}/index.php"
 }
+
+output "very_important_secret" {
+   value = data.infisical_secrets.myapp-confidential.secrets.very_important_secret.value
+   sensitive = true
+}
