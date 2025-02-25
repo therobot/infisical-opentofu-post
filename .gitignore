@@ -1,0 +1,9 @@
+# Local infisical settings
+.infisical.json
+
+# Local .terraform directories
+**/.terraform/*
+
+# .tfstate files
+*.tfstate
+*.tfstate.*
