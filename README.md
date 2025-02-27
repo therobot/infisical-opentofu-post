@@ -16,6 +16,7 @@ author: "Jacobo García"
 - Conclusions.
 
 ## Introduction
+
 A seasoned infrastructure engineer cares about security. Protecting sensitive data is one of the most important security tasks an engineer performs. Proper security measures help ensure this data is protected from theft or unauthorized access. With the myriad of tools available in the market, it is easier than never before to implement security best practices. We are going to learn how to use one of those tools: Infisical, an open-source secret management platform. Teams use Infisical to centralize configuration and secrets. In this post we are going to learn how to integrate Infisical with OpenTofu, a Terraform 100% open-source fork.
 
 Imagine that you need to have a secret safely available as an environment variable of a startup script in a GCP compute instance. Probably your startup script will use the environment later to perform another action. This post will walk through to creation of a GCP compute instance with OpenTofu, then use Infisical to retrieve a secret and inject it in the startup script of the startup script.
@@ -39,7 +40,7 @@ We want to keep this post short, so before we get in to the real action we are g
 
 With every requisite fulfilled we can move to the next section.
 
-## Configuring Infisical in your development machine and creating a new project.
+## Configuring Infisical in your development machine and creating a new project
 
 Now that you have registered an Infisical account we are going to configure it's CLI. Keep in ind the Infisical region selected in the previous step.
 
@@ -125,8 +126,8 @@ export TF_VAR_INFISICAL_CLIENT_SECRET="<OPENTOFU_CLIENT_SECRET>"
 export TF_VAR_INFISICAL_WORKSPACE_ID="<MYAPP_CONFIDENTIAL_PROJECT_ID>"
 ```
 
-## Creating a secret in Infisical.
-  
+## Creating a secret in Infisical
+ 
 We are ready to store secrets in infisical. Let's to create a secret named `very_important_secret` with an example value of `secret123`, and we will store in our `development` environment. [Infisical supports multiple environments per project](https://infisical.com/docs/documentation/platform/project#project-environment). On the command line execute:
 
 ```bash
@@ -138,7 +139,9 @@ Now you can review your secret:
 ```bash
 infisical secrets get "very_important_secret"
 ```
-[IMAGE11]
+
+![image](images/11.png)
+
 
 Infisical supports CRUD operations in the secrets, for more information check [the official docs](https://infisical.com/docs/cli/commands/secrets#description).
 
