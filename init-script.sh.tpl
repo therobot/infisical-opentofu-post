@@ -11,9 +11,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-sudo apt update && sudo apt install -y infisical
+# Installing our environment and dependencies
+sudo apt update
 apt install apache2 php libapache2-mod-php php-mysql
 
 chown -R www-data:www-data /var/www
@@ -25,7 +24,5 @@ cd /var/www/html
 curl http://169.254.169.254/latest/meta-data/instance-id -o index.html
 curl https://raw.githubusercontent.com/hashicorp/learn-terramino/master/index.php -O
 
-
-# Now we are able to run our app with the secret in our environment, or drop it to a file.
+# Here we use the secret injecte3d in the startup script
 export MYAPPSECRET=${very_important_secret}
-echo $MYAPPSECRET > /var/www/html/.env
