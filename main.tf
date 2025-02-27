@@ -19,15 +19,15 @@ provider "google" {
 
 provider "infisical" {
   host          = "https://eu.infisical.com" # Specify the region you have selected when you created the workspace
-  client_id     = "<machine-identity-client-id>"
-  client_secret = "<machine-identity-client-secret>"
+  client_id = var.infisical_client_id
+  client_secret = var.infisical_client_secret
 }
 
 provider "random" {}
 
 data "infisical_secrets" "myapp-confidential" {
   env_slug     = "dev"
-  workspace_id = "<project_id>"
+  workspace_id = var.infisical_workspace_id
   folder_path  = "/"
 }
 
@@ -37,7 +37,7 @@ data "template_file" "myapp_init_script" {
     very_important_secret = data.infisical_secrets.myapp-confidential.secrets.very_important_secret.value
   }
 }
->
+
 resource "random_pet" "name" {
   length = 2
 }
