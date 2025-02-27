@@ -4,7 +4,7 @@ date: 2025-02-27
 author: "Jacobo García"
 ---
 
-# On this page
+## On this page
 
 - Introduction.
 - Assumptions and pre-requisites.
@@ -27,7 +27,7 @@ These are the steps to follow:
  - Deploy a GCP compute instance with Open Tofu.
  - Retrieve a secret from Infisical Vault and inject it in a compute instance init script.
 
-I hope everything is clear at this point, let's step forward to the next section.
+I hope everything is clear at this point, let's step forward.
 
 ## Assumptions and pre-requisites
 
@@ -208,7 +208,7 @@ resource "google_compute_instance" "web" {
   metadata_startup_script = data.template_file.myapp_init_script.rendered
 ...
 ```
-We are ready to create the example infrastructure:
+Finally, we just need to execute the usual steps on Open Tofu to create our infrastructure.
 
 ```bash
 $ tofu init
@@ -226,7 +226,7 @@ $ tofu apply
 
 When sucessfull the command will create our instance and execute the script which instances `very_important_secret`. In our use case the secret is exposed as shell environment variable that could be later used. 
 
-A good idea to check if the secret is retrieved correctly and rendered into an environment variable in the script is to echo the variable to a file. Another way to check the secret is to examine it from the command line, since we have an specific output resource for the secret in our `outputs.tf`.
+A good idea to verify all the steps in the example is to echo the variable to a file. You can also examine the secret from the command line, since we have an specific output resource for the secret in our `outputs.tf`.
 
 ```bash
 $ tofu output -json very_important_secret
