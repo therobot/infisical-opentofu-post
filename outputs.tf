@@ -12,19 +12,19 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-output "domain-name" {
-  value = google_compute_instance.web.network_interface.0.network_ip
-}
+# output "domain-name" {
+#   value = google_compute_instance.web.network_interface.0.network_ip
+# }
 
-output "public-hostname" {
-    value = google_compute_instance.web.network_interface.0.access_config.0.nat_ip
-}
+# output "public-hostname" {
+#     value = google_compute_instance.web.network_interface.0.access_config.0.nat_ip
+# }
 
-output "application-url" {
-   value = "${google_compute_instance.web.network_interface.0.access_config.0.nat_ip}/index.php"
-}
+# output "application-url" {
+#    value = "${google_compute_instance.web.network_interface.0.access_config.0.nat_ip}/index.php"
+# }
 
-output "very_important_secret" {
-   value = data.infisical_secrets.myapp-confidential.secrets.very_important_secret.value
-   sensitive = true
-}
+# output "very_important_secret" {
+#    value = data.infisical_secrets.myapp-confidential.secrets.very_important_secret.value
+#    sensitive = true
+# }
