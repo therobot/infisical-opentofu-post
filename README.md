@@ -47,29 +47,30 @@ Start by authenticating with the Infisical platform:
 ```bash
 infisical login
 ```
-[IMAGE1]
+
+![image](images/01.png)
 
 Here you have to pick the Infisical Cloud region.
 
-[IMAGE2]
+![image](images/02.png)
 
 Open the URL offered in the next step and use it to authenticate via Browser. 
 Login, select the region and your organisation, after sucesfully loggin in you'll see:
 
-[IMAGE3]
+![image](images/03.png)
 
 Heading back to the command line, we have sucesfully authenticated.
 
-[IMAGE4]
+![image](images/04.png)
 
 Next, we are going to create a new Infisical project to store our secrets. Infisical doesn't offer a command line action for creating a project. So we have to rely on it's web administrative interface. In your browser, head into `https://app.infisical.com`, once you log ing you'll be able to create a new project.
 
-[IMAGE5]
+![image](images/05.png)
 
 Click on "New Project", use the Project Name `myapp-confidential` add an optional description and "click Create Project"  
 
-[IMAGE6]
-[IMAGE6.5]
+![image](images/06.png)
+![image](images/6.5.png)
 
 Our project is created. Now we are going to configure Infisical in our infra repo. We will use an example Open Tofu repository specifically created for this post. In the terminal run:
 
@@ -84,7 +85,9 @@ cd infisical-opentofu-post
 infisical init
 ```
 
-[IMAGE7][IMAGE8][IMAGE9]
+![image](images/07.png)
+![image](images/08.png)
+![image](images/09.png)
 
 After running the init command a new configuration file `.infisical.json` is created in your root directory. 
 
@@ -96,24 +99,22 @@ An Infisical machine identity is an entity that symbolizes a workload or applica
 
 In the Infisical web admin interface, in the Sidebar got to: Admin > Access Control. Find and click "Machine Identities" and then "Create Identity".
 
-[IMAGE12]
+![image](images/12.png)
 
 Now click on "Create a new Identity". Afterwards type `opentofu` for the identity name, assign the role Member. 
 
-[IMAGE14]
-
-[IMAGE15]
+![image](images/14.png)
+![image](images/15.png)
 
 Let's assign the Machine Identity to our project. In this same screen click on the "+" symbol located at the end-right of the interface. Select `myapp-confidential` and apply the role Developer, click Add.
 
-[IMAGE16]
-
-[IMAGE17]
+![image](images/16.png)
+![image](images/17.png)
 
 We will use Universal Auth method for our client, but we need to take note of a couple of parameters for authenticating our Open Tofu client. Click on the settings wheel next to Universal Auth, under Authentication. Then click on "Add Client Secret" and then click crate. Note down Client Secret since it only will be shown once. Close the window and take note of Client ID.
 
-[IMAGE18]
-[IMAGE19]
+![image](images/18.png)
+![image](images/19.png)
 
 Finally we will need the workspace ID parameter to complete our Open Tofu configuration. Click on "Secrets" on the sidebar > `myapp-confidential > "Project Settings". Then click on "Copy Project ID" and note it down.
 We will expose the three parameters as shell environment variables, replace the parameters in angle brackets below with the ones noted down.
@@ -131,7 +132,7 @@ We are ready to store secrets in infisical. Let's to create a secret named `very
 ```bash
 infisical secrets set "very_important_secret=secret123" --env dev
 ```
-[IMAGE10]
+![image](images/10.png)
 
 Now you can review your secret:
 ```bash
