@@ -1,5 +1,5 @@
 ---
-title: "Managing secrets with Infisical and Open Tofu"
+title: "Managing secrets with Infisical and OpenTofu"
 date: 2025-02-27
 author: "Jacobo García"
 ---
@@ -9,22 +9,22 @@ author: "Jacobo García"
 - Introduction.
 - Assumptions and pre-requisites.
 - Configuring Infisical on your development machine and create an Infisical project.
-- Creating a Machine Identity and exposing it to Open Tofu.
+- Creating a Machine Identity and exposing it to OpenTofu.
 - Creating a secret in Infisical.
-- Deploying a GCP compute instance with Open Tofu.
+- Deploying a GCP compute instance with OpenTofu.
 - Retrieving secrets from Infisical and feeding them to startup script.
 - Conclusions.
 
 ## Introduction
-A seasoned infrastructure engineer cares about security. Protecting sensitive data is one of the most important security tasks an engineer performs. Proper security measures help ensure this data is protected from theft or unauthorized access. With the myriad of tools available in the market, it is easier than never before to implement security best practices. We are going to learn how to use one of those tools: Infisical, an open-source secret management platform. Teams use Infisical to centralize configuration and secrets. In this post we are going to learn how to integrate Infisical with Open Tofu, a Terraform 100% open-source fork.
+A seasoned infrastructure engineer cares about security. Protecting sensitive data is one of the most important security tasks an engineer performs. Proper security measures help ensure this data is protected from theft or unauthorized access. With the myriad of tools available in the market, it is easier than never before to implement security best practices. We are going to learn how to use one of those tools: Infisical, an open-source secret management platform. Teams use Infisical to centralize configuration and secrets. In this post we are going to learn how to integrate Infisical with OpenTofu, a Terraform 100% open-source fork.
 
-Imagine that you need to have a secret safely available as an environment variable of a startup script in a GCP compute instance. Probably your startup script will use the environment later to perform another action. This post will walk through to creation of a GCP compute instance with Open Tofu, then use Infisical to retrieve a secret and inject it in the startup script of the startup script.
+Imagine that you need to have a secret safely available as an environment variable of a startup script in a GCP compute instance. Probably your startup script will use the environment later to perform another action. This post will walk through to creation of a GCP compute instance with OpenTofu, then use Infisical to retrieve a secret and inject it in the startup script of the startup script.
 
 These are the steps to follow: 
  - Configure Infisical in a development machine and create an Infisical project.
- - Creating an Infisical Machine Identity to use in Open Tofu.
+ - Creating an Infisical Machine Identity to use in OpenTofu.
  - Create a secret in Infisical.
- - Deploy a GCP compute instance with Open Tofu.
+ - Deploy a GCP compute instance with OpenTofu.
  - Retrieve a secret from Infisical Vault and inject it in a compute instance init script.
 
 I hope everything is clear at this point, let's step forward.
@@ -32,7 +32,7 @@ I hope everything is clear at this point, let's step forward.
 ## Assumptions and pre-requisites
 
 We want to keep this post short, so before we get in to the real action we are going to assume some basic pre-requisites fullfilled. You should we have:
-- The following tools installed: `git`, `open tofu`, `infisical`, `gcloud`.
+- The following tools installed: `git`, `tofu`, `infisical`, `gcloud`.
 - A configured GCP account with the following APIs enabled: Compute, Billing, Identity and Access Management.
 - An Infisical account for your organisation. Infiscal offers a paid cloud version with a generous free tier, which will be used in this exercise. We don't want to explain how to configure the self-hosted, open-source version for simplicity reasons. 
 - Take note of the region and the organisation when you registered an Infisical account for latter use. In this post the organisation name is `Liminal` and the region is EU (Europe).
@@ -63,7 +63,7 @@ Heading back to the command line, we have sucesfully authenticated.
 
 ![image](images/04.png)
 
-Next, we are going to create a new Infisical project to store our secrets. Infisical doesn't offer a command line action for creating a project. So we have to rely on it's web administrative interface. In your browser, head into `https://app.infisical.com`, once you log ing you'll be able to create a new project.
+Next, we are going to create a new Infisical project to store our secrets. Infisical doesn't offer a command line action for creating a project. So we have to rely on it's web administrative interface. In your browser, head into `https://app.infisical.com`, once you log in you'll be able to create a new project.
 
 ![image](images/05.png)
 
@@ -72,7 +72,7 @@ Click on "New Project", use the Project Name `myapp-confidential` add an optiona
 ![image](images/06.png)
 ![image](images/6.5.png)
 
-Our project is created. Now we are going to configure Infisical in our infra repo. We will use an example Open Tofu repository specifically created for this post. In the terminal run:
+Our project is created. Now we are going to configure Infisical in our infra repo. We will use an example OpenTofu repository specifically created for this post. In the terminal run:
 
 ```bash
 git clone https://github.com/therobot/infisical-opentofu-post.git
@@ -93,9 +93,9 @@ After running the init command a new configuration file `.infisical.json` is cre
 
 Once you completed this section you should have an Infisical project named `myapp-confidential`, the infisical CLI configured, and our example infra repo. 
 
-## Creating a Machine Identity and exposing it to Open Tofu
+## Creating a Machine Identity and exposing it to OpenTofu
 
-An Infisical machine identity is an entity that symbolizes a workload or application needing access to different resources within Infisical. Think of it as an IAM user in AWS or a service account in GCP. We are going to create one and expose it as environment variables for Open Tofu.
+An Infisical machine identity is an entity that symbolizes a workload or application needing access to different resources within Infisical. Think of it as an IAM user in AWS or a service account in GCP. We are going to create one and expose it as environment variables for OpenTofu.
 
 In the Infisical web admin interface, in the Sidebar got to: Admin > Access Control. Find and click "Machine Identities" and then "Create Identity".
 
@@ -111,18 +111,18 @@ Let's assign the Machine Identity to our project. In this same screen click on t
 ![image](images/16.png)
 ![image](images/17.png)
 
-We will use Universal Auth method for our client, but we need to take note of a couple of parameters for authenticating our Open Tofu client. Click on the settings wheel next to Universal Auth, under Authentication. Then click on "Add Client Secret" and then click crate. Note down Client Secret since it only will be shown once. Close the window and take note of Client ID.
+We will use Universal Auth method for our client, but we need to take note of a couple of parameters for authenticating our OpenTofu client. Click on the settings wheel next to Universal Auth, under Authentication. Then click on "Add Client Secret" and then click create. Note down Client Secret since it only will be shown once. Close the window and take note of Client ID.
 
 ![image](images/18.png)
 ![image](images/19.png)
 
-Finally we will need the workspace ID parameter to complete our Open Tofu configuration. Click on "Secrets" on the sidebar > `myapp-confidential > "Project Settings". Then click on "Copy Project ID" and note it down.
+Finally we will need the workspace ID parameter to complete our OpenTofu configuration. Click on "Secrets" on the sidebar > `myapp-confidential > "Project Settings". Then click on "Copy Project ID" and note it down.
 We will expose the three parameters as shell environment variables, replace the parameters in angle brackets below with the ones noted down.
 
 ```bash
 export TF_VAR_INFISICAL_CLIENT_ID="<OPENTOFU_CLIENT_ID>"
-export TF_VAR_INFISICAL_CLIENT_SECRET="<OPENTOFU_CLIENT_SECRET"
-export TF_VAR_INFISICAL_WORKSPACE_ID="MYAPP_CONFIDENTIAL_PROJECT_ID"
+export TF_VAR_INFISICAL_CLIENT_SECRET="<OPENTOFU_CLIENT_SECRET>"
+export TF_VAR_INFISICAL_WORKSPACE_ID="<MYAPP_CONFIDENTIAL_PROJECT_ID>"
 ```
 
 ## Creating a secret in Infisical.
@@ -144,9 +144,9 @@ Infisical supports CRUD operations in the secrets, for more information check [t
 
 We are done creating our secrets, let's create some infrastructure.
 
-## Deploying a GCP compute instance with Open Tofu
+## Deploying a GCP compute instance with OpenTofu
 
-Let's go back to our Open Tofu infra repo. 
+Let's go back to our OpenTofu infra repo. 
 
 ```bash
 ls -l
@@ -171,9 +171,9 @@ provider "infisical" {
 
 ```
 
-The variables `client_id` and `client_secret` are available in our environment, they were exported beforehand. Those variables should be also declared in `variables.tf`. It is important to configure the `host` parameter URL to the region specific region your using. There's a bug in Infisical that makes Open Tofu crash if you specify `app.infisical.com`, as the official documentation states.
+The variables `client_id` and `client_secret` are available in our environment, they were exported beforehand. Those variables should be also declared in `variables.tf`. It is important to configure the `host` parameter URL to the region specific region your using. There's a bug in Infisical that makes OpenTofu crash if you specify `app.infisical.com`, as the official documentation states.
 
-The next block retrieves the whole infisical project `myapp-confidential` and instances it as an Open Tofu data object. We are also consuming `workspace_id` from our shell environment, same as with the provider.
+The next block retrieves the whole infisical project `myapp-confidential` and instances it as an OpenTofu data object. We are also consuming `workspace_id` from our shell environment, same as with the provider.
 
 ```tf
 data "infisical_secrets" "myapp-confidential" {
@@ -193,7 +193,7 @@ data "template_file" "myapp_init_script" {
   }
 }
 ```
-Take a special look on how to access specific secrets inside the whole Infisical project. The secret we are going to use: `very_important_secret` is accessed on the Open Tofu `infisical_projects` data object and instanced as a template variable. Pay special attention to the last line of `init-script.sh.tpl` to see how `very_important_secret` is rendered:
+Take a special look on how to access specific secrets inside the whole Infisical project. The secret we are going to use: `very_important_secret` is accessed on the OpenTofu `infisical_projects` data object and instanced as a template variable. Pay special attention to the last line of `init-script.sh.tpl` to see how `very_important_secret` is rendered:
 
 ```bash
 export MYAPPSECRET=${very_important_secret}
@@ -209,20 +209,20 @@ resource "google_compute_instance" "web" {
   metadata_startup_script = data.template_file.myapp_init_script.rendered
 ...
 ```
-Finally, we just need to execute the usual steps on Open Tofu to create our infrastructure.
+Finally, we just need to execute the usual steps on OpenTofu to create our infrastructure.
 
 ```bash
-$ tofu init
+tofu init
 ```
-Run the Open Tofu `plan` command to create a preview of resources created and destroyed.
+Run the OpenTofu `plan` command to create a preview of resources created and destroyed.
 
 ```bash
-$ tofu plan
+tofu plan
 ```
-A sucessfull `plan` command will output a preview of the changes perdormed to your infrastructure. Now it is time to make this changes real.
+A sucessful `plan` command will output a preview of the changes performed to your infrastructure. Now it is time to make this changes real.
 
 ```bash
-$ tofu apply
+tofu apply
 ```
 
 When sucessfull the command will create our instance and execute the script which instances `very_important_secret`. In our use case the secret is exposed as shell environment variable that could be later used. 
@@ -230,7 +230,7 @@ When sucessfull the command will create our instance and execute the script whic
 A good idea to verify all the steps in the example is to echo the variable to a file. You can also examine the secret from the command line, since we have an specific output resource for the secret in our `outputs.tf`.
 
 ```bash
-$ tofu output -json very_important_secret
+tofu output -json very_important_secret
 "secret123"
 ```
 
