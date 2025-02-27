@@ -24,5 +24,5 @@ cd /var/www/html
 curl http://169.254.169.254/latest/meta-data/instance-id -o index.html
 curl https://raw.githubusercontent.com/hashicorp/learn-terramino/master/index.php -O
 
-# Here we use the secret injecte3d in the startup script
+# Here we use the secret injected in the startup script
 export MYAPPSECRET=${very_important_secret}
