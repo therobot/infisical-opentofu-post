@@ -219,16 +219,19 @@ data "template_file" "myapp_init_script" {
 }
 ```
 
-Take a moment to consider how to access a specific secret within the Infisical data object. We accessed `very_important_secret` from the `infisical_projects` data object, which is then instantiated as a template variable: 
+Take a moment to consider how to access a specific secret within the Infisical data object. We access `very_important_secret` from the `infisical_projects` data object, then it is instantiated as a template variable: 
 
-Now pay special attention to the last line of our template: [init-script.sh.tpl](https://github.com/therobot/infisical-opentofu-post/blob/main/init-script.sh.tpl). Here `very_important_secret`, now a variable, is rendered by the OpenTofu template data source.
+Now, pay special attention to the last lines of code in [init-script.sh.tpl](https://github.com/therobot/infisical-opentofu-post/blob/main/init-script.sh.tpl):
 
 ```bash
-# init-script.sh.tpl
+...
+# We use the injected secret to create a .env file
 export MYAPPSECRET=${very_important_secret}
+echo $MYAPPSECRET > /var/www/html/.env
 ```
+Here `very_important_secret`, now a OpenTofu variable, is rendered by the template data source. On execution the script will create a `.env` file containing the variable.
 
-Examine the code that declares the compute instance resource. The resource renders the specified by `metadata_startup_script`, the template declaration already has `very_important_secret` since we have passed it as a variable in the previous step. The startup script is executed as part of the compute instance creation process.
+Next, examine the resource instance declaration. It renders the template with `metadata_startup_script`, the template declaration already stores `very_important_secret` since it was passed as a variable in the previous step. The startup script will be executed as part of the GCP instance creation process.
 
 
 ```tf
@@ -244,7 +247,7 @@ We are done here, now let's create some infrastructure!
 
 ## Deploy a GCP compute instance with OpenTofu.
 
-Finally, we have finalised all the required steps to create our infrastructure. We just need to execute the usual steps on OpenTofu to create our infrastructure.
+We have finalised all the required steps to create our infrastructure. We just need to execute the usual steps on OpenTofu to create our infrastructure.
 
 ```bash
 tofu init
@@ -262,7 +265,9 @@ tofu apply
 
 Upon successful execution, the command will create the instance and run the script that instantiates `very_important_secret`. As we saw above the secret is exposed as a environment variable for later use in the script.
 
-A good way to verify all the steps in the example is to echo the variable to a file in the script, the manually log in to the compute instance to see if it has been rendered correctly. You can also inspect the secret from the command line, as we have a specific output resource for the secret defined in [outputs.tf](https://github.com/therobot/infisical-opentofu-post/blob/main/outputs.tf).
+Verify all the steps by login into the compute instance. And see if it the `.env` has been rendered correctly.
+
+You can also inspect the secret from the command line, as we have a specific output resource for the secret defined in [outputs.tf](https://github.com/therobot/infisical-opentofu-post/blob/main/outputs.tf).
 
 ```bash
 tofu output -json very_important_secret
