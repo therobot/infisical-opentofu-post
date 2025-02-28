@@ -11,18 +11,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Installing our environment and dependencies
+# Installing our app dependencies
 sudo apt update
 apt install apache2 php libapache2-mod-php php-mysql
 
+# Setting permissions
 chown -R www-data:www-data /var/www
 chmod 2775 /var/www
 mkdir -p /var/www/html
 find /var/www -type d -exec chmod 2775 {} \;
 find /var/www -type f -exec chmod 0664 {} \;
 cd /var/www/html
-curl http://169.254.169.254/latest/meta-data/instance-id -o index.html
-curl https://raw.githubusercontent.com/hashicorp/learn-terramino/master/index.php -O
 
-# Here we use the secret injected in the startup script
+# We use the injected secret to create a .env file
 export MYAPPSECRET=${very_important_secret}
+echo $MYAPPSECRET > /var/www/html/.env
+
+# Ideally we would clone our app from a git repository here
+# The app would consume the secret from the .env file
